@@ -81,9 +81,9 @@ model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3, restore_best_weights=True)
 
-model.fit(train_generator, epochs=20, validation_data=test_generator, callbacks=[early_stopping])
+model.fit(train_generator, epochs=10, validation_data=test_generator, callbacks=[early_stopping])
 
 model.save('flower_classifier_model')
 

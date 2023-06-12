@@ -25,31 +25,28 @@ train_generator = datagen.flow_from_directory(
     shuffle=True
 )
 
-
-# Aumentar a rede
 model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
     tf.keras.layers.MaxPooling2D((2, 2)),
-    # tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-    # tf.keras.layers.MaxPooling2D((2, 2)),
-    # tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
-    # tf.keras.layers.MaxPooling2D((2, 2)),
-    # tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
-    # tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
     tf.keras.layers.Flatten(),
-    # Qual a mehor ativacao?
     tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.Dense(5, activation='softmax')
 ])
 
 
-# Quais metricas usar?
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-# Quantas epocas treinar?
-model.fit(train_generator, epochs=10)
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
+model.fit(train_generator, epochs=20, callbacks=[early_stopping])
 
 model.save('flower_classifier_model')
 

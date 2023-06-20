@@ -13,7 +13,7 @@ test_generator = test_datagen.flow_from_directory(
     shuffle=True
 )
 
-loaded_model = tf.keras.models.load_model('flower_classifier_model')
+loaded_model = tf.keras.models.load_model('flower_classifier_model_manual_data_augmentation')
 
 
 def classify_image(image_path):

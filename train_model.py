@@ -51,6 +51,6 @@ model.compile(optimizer='adam',
 
 early_stopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3, restore_best_weights=True)
 
-model.fit(train_generator, epochs=300, validation_data=test_generator, callbacks=[early_stopping])
+model.fit(train_generator, epochs=15, validation_data=test_generator, callbacks=[early_stopping])
 
-model.save('flower_classifier_model')
+model.save('flower_classifier_model_manual_data_augmentation')

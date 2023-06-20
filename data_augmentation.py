@@ -44,7 +44,7 @@ def data_augmentation(image_path, folder_path):
     contrast_image = cv2.convertScaleAbs(image, alpha=1.0, beta=50)
     cv2.imwrite(f'./train_images/{folder_path}/{filename}_contrast.jpg', contrast_image)
 
-    # Change hue 180, 90, 45
+    # Mudar hue 180, 90, 45
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     hsv_image[:, :, 0] = (hsv_image[:, :, 0] + 120) % 180
     hue_120_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
@@ -96,7 +96,7 @@ def data_augmentation(image_path, folder_path):
     saturation_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
     cv2.imwrite(f'./train_images/{folder_path}/{filename}_saturation.jpg', saturation_image)
 
-    #Central crop
+    # Central crop
     height, width = image.shape[:2]
     start_row, start_col = int(height * .25), int(width * .25)
     end_row, end_col = int(height * .75), int(width * .75)
@@ -106,22 +106,20 @@ def data_augmentation(image_path, folder_path):
   
     
 
-# Percorrer todas as imagens da pasta Lotus, Lilly, Orchid, Sunflower e Tulip
-# e aplicar a função data_augmentatio, mas apenas as 5 primeiras imagens de cada pasta
+# Criar só as 5 primeiras variações
 # for folder in os.listdir('./train_images'):    
 #     for image in os.listdir(f'./train_images/{folder}')[0:5]:
 #         image_path = f'./train_images/{folder}/{image}'
 #         data_augmentation(image_path, folder)
 
 
-# Percorrer todas as imagens da pasta Lotus, Lilly, Orchid, Sunflower e Tulip
-# e aplicar a função data_augmentatio, salvando no memso diretório 
+# Salvar variações
 for folder in os.listdir('./train_images'):
     for image in os.listdir(f'./train_images/{folder}'):
         image_path = f'./train_images/{folder}/{image}'
         data_augmentation(image_path, folder)
 
-# now remove all augmented images from the train folder (that contains "_" character)
+# Remover variações
 # for folder in os.listdir('./train_images'):
 #     for image in os.listdir(f'./train_images/{folder}'):
 #         if "_" in image:

@@ -1,7 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-test_path = './test_images'
+
+
+test_path = './raw_test_images'
 
 test_datagen = ImageDataGenerator(rescale=1./255)
 
@@ -13,7 +15,7 @@ test_generator = test_datagen.flow_from_directory(
     shuffle=True
 )
 
-loaded_model = tf.keras.models.load_model('flower_classifier_model_manual_data_augmentation')
+loaded_model = tf.keras.models.load_model('flower_classifier_model_raw')
 
 
 def classify_image(image_path):
@@ -31,10 +33,5 @@ def classify_image(image_path):
     return predicted_class
 
 
-# Replace 'some_lotus_image.jpg' with the correct file name
-image_path = './test_images/Lotus/0cad97f7dc.jpg'
-predicted_class = classify_image(image_path)
-print(f"The predicted class for {image_path} is: {predicted_class}")
-# print the accuracy of the model using loaded_model
 print(
     f"The accuracy of the model is: {loaded_model.evaluate(test_generator)[1]}")

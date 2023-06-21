@@ -1,129 +1,143 @@
 import cv2
 import os
 import numpy as np
+from skimage.util import random_noise
 
 
-def data_augmentation(image_path, folder_path):
+
+def data_augmentation(image_path, folder_path, number_of_variations=16):
     # Carregar a imagem original
-    image = cv2.imread(image_path)
 
     # Obter o nome do arquivo sem a extensão
     filename = os.path.splitext(os.path.basename(image_path))[0]
 
-    # Espelhar a imagem
-    flipped_image = cv2.flip(image, 1)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_flipped.jpg', flipped_image)
+    # percorrer o numero de variações
+    for i in range(number_of_variations):
+        image = cv2.imread(image_path)
 
-    # Rotacionar a imagem
-    rotated_image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_rotated.jpg', rotated_image)
+        # chance de 1 em 6 de aplicar gaussian
+        salt_pepper_chance = np.random.randint(0, 6)
+        if salt_pepper_chance == 1:
+            gaussian_noise = random_noise(image, mode='gaussian')
 
-    # Blur na imagem
-    blurred_image = cv2.GaussianBlur(image, (7, 7), 0)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_blurred.jpg', blurred_image)
+            # passar a imagem para o proximo passo
+            image = np.array(255 * gaussian_noise, dtype='uint8')
 
-    # Mais blur
-    more_blurred_image = cv2.GaussianBlur(image, (15, 15), 0)
-    cv2.imwrite(
-        f'./train_images/{folder_path}/{filename}_more_blurred.jpg', more_blurred_image)
 
-    # Sharpen
-    kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-    sharpened_image = cv2.filter2D(image, -1, kernel)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_sharpened.jpg', sharpened_image)
+        # chance de 1 em 8 de colocar um retangulo preto na imagem
+        black_rectangle_chance = np.random.randint(0, 8)
+        if black_rectangle_chance == 1:
+            # Retangulo preto
+            height, width = image.shape[:2]
+            start_row, start_col = int(height * .25), int(width * .25)
+            end_row, end_col = int(height * .75), int(width * .75)
+            cv2.rectangle(image, (start_col, start_row), (end_col, end_row), (0, 0, 0), -1)
+            # passar a imagem para o proximo passo
+            image = image
 
-    # Aumentar o brilho da imagem
-    brightness_image = cv2.convertScaleAbs(image, alpha=1.5, beta=0)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_brightness.jpg', brightness_image)
 
-    # Diminuir o brilho da imagem
-    darkness_image = cv2.convertScaleAbs(image, alpha=0.5, beta=0)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_darkness.jpg', darkness_image)
+        # Espelhar a imagem
+        # chance de 50% de espelhar horizontalmente
+        flip_chance = np.random.randint(0, 2)
+        if flip_chance == 1:
+            flipped_image = cv2.flip(image, 1)
 
-    # Aumentar o contraste da imagem
-    contrast_image = cv2.convertScaleAbs(image, alpha=1.0, beta=50)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_contrast.jpg', contrast_image)
+            # passar a imagem para o proximo passo
+            image = flipped_image
 
-    # Mudar hue 180, 90, 45
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv_image[:, :, 0] = (hsv_image[:, :, 0] + 120) % 180
-    hue_120_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_hue_120.jpg', hue_120_image)
 
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv_image[:, :, 0] = (hsv_image[:, :, 0] + 90) % 180
-    hue_90_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_hue_90.jpg', hue_90_image)
+        # Rotacionar a imagem de -90 a 90 graus
+        rotation_angle = np.random.randint(-60, 60)
+        height, width = image.shape[:2]
+        rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), rotation_angle, 1)
+        rotated_image = cv2.warpAffine(image, rotation_matrix, (width, height))
 
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv_image[:, :, 0] = (hsv_image[:, :, 0] + 45) % 180
-    hue_45_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_hue_45.jpg', hue_45_image)
-    
+        # passar a imagem para o proximo passo
 
-    # Diminuir o contraste da imagem
-    low_contrast_image = cv2.convertScaleAbs(image, alpha=1.0, beta=-50)
-    cv2.imwrite(
-        f'./train_images/{folder_path}/{filename}_low_contrast.jpg', low_contrast_image)
+        image = rotated_image
+        # chance de 1 em 5 de aplicar blur
+        blur_chance = np.random.randint(0, 5)
+        if blur_chance == 1:
+            # Blur
+            blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
+            # passar a imagem para o proximo passo
+            image = blurred_image
 
-    # Dilatar a imagem
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    dilated_image = cv2.dilate(image, kernel)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_dilated.jpg', dilated_image)
+        # chance de 1 em 5 de aplicar sharpen
+        sharpen_chance = np.random.randint(0, 8)
+        if sharpen_chance == 1:
+            # Sharpen
+            kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+            sharpened_image = cv2.filter2D(image, -1, kernel)
+            # passar a imagem para o proximo passo
+            image = sharpened_image
 
-    # Erodir a imagem
-    eroded_image = cv2.erode(image, kernel)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_eroded.jpg', eroded_image)
+        # pequeno intervalo para mudar o brilho e contraste
+        alpha = np.random.uniform(0.5, 1.2)
+        beta = np.random.randint(-5, 5)
 
-    # 50% JPEG QUALITYT
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_50.jpg', image, [
-                cv2.IMWRITE_JPEG_QUALITY, 50])
-    
-    # 25% JPEG QUALITYT
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_25.jpg', image, [
-                cv2.IMWRITE_JPEG_QUALITY, 25])
-    # 10% JPEG QUALITYT
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_10.jpg', image, [
-                cv2.IMWRITE_JPEG_QUALITY, 10])
-    
-    # Gray scale
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_gray.jpg', gray_image)
+        # Mudar o brilho e contraste da imagem
+        brightness_contrast_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
 
-    # Saturation
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv_image[:, :, 1] = (hsv_image[:, :, 1] + 180) % 180
-    saturation_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_saturation.jpg', saturation_image)
+        # passar a imagem para o proximo passo
+        image = brightness_contrast_image
 
-    # Central crop
-    height, width = image.shape[:2]
-    start_row, start_col = int(height * .25), int(width * .25)
-    end_row, end_col = int(height * .75), int(width * .75)
-    cropped_image = image[start_row:end_row, start_col:end_col]
-    cv2.imwrite(f'./train_images/{folder_path}/{filename}_cropped.jpg', cropped_image)
+        # pequeno intervalo para mudar a saturação
+        saturation = np.random.uniform(0.5, 1.1)
+
+        # Mudar a saturação da imagem
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv_image[:, :, 1] = hsv_image[:, :, 1] * saturation
+        image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
+
+
+        # chance de 1 em 8 de aplicar central crop
+        central_crop_chance = np.random.randint(0, 10)
+        if central_crop_chance == 1:
+            # Central crop
+            height, width = image.shape[:2]
+            start_row, start_col = int(height * .25), int(width * .25)
+            end_row, end_col = int(height * .75), int(width * .75)
+            cropped_image = image[start_row:end_row, start_col:end_col]
+            # passar a imagem para o proximo passo
+            image = cropped_image
+            
+
+
+        # aplicar ruido gaussiano
+        # chance de 1 em 8 de aplicar ruido gaussiano
+   
+
+
+        # salva a imagem
+        cv2.imwrite(f'./train_images/{folder_path}/{filename}_{i}.jpg', image)
+        
+        
+
 
   
     
 
 # Criar só as 5 primeiras variações
-# for folder in os.listdir('./train_images'):    
-#     for image in os.listdir(f'./train_images/{folder}')[0:5]:
-#         image_path = f'./train_images/{folder}/{image}'
-#         data_augmentation(image_path, folder)
+#for folder in os.listdir('./train_images'):    
+#    for image in os.listdir(f'./train_images/{folder}')[0:5]:
+#        image_path = f'./train_images/{folder}/{image}'
+#        data_augmentation(image_path, folder)
 
 
 # Salvar variações
-for folder in os.listdir('./train_images'):
-    for image in os.listdir(f'./train_images/{folder}'):
-        image_path = f'./train_images/{folder}/{image}'
-        data_augmentation(image_path, folder)
+#for folder in os.listdir('./train_images'):
+#    for image in os.listdir(f'./train_images/{folder}'):
+#        image_path = f'./train_images/{folder}/{image}'
+#        data_augmentation(image_path, folder)
 
 # Remover variações
-# for folder in os.listdir('./train_images'):
-#     for image in os.listdir(f'./train_images/{folder}'):
-#         if "_" in image:
-#             os.remove(f'./train_images/{folder}/{image}')
+for folder in os.listdir('./a_train_images'):
+     for image in os.listdir(f'./a_train_images/{folder}'):
+# se a imagem tiver dois _ no nome, ela é uma variação errada
+        if image.count('_') == 2:
+            os.remove(f'./a_train_images/{folder}/{image}')
+
 
 
 

@@ -1,6 +1,11 @@
 flower_images
 flower_classifier_model
 flower_classifier_model_datagen
-flower_classifier_model_manual_data_augmentation
+flower_classifier_model_dag
+flower_classifier_model_raw
 train_images
 test_images
+a_test_images
+a_train_images
+raw_test_images
+raw_train_images

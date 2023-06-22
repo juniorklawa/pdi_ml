@@ -1,9 +1,15 @@
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+import pandas as pd
+import seaborn as sns
 
 
 
-test_path = './raw_test_images'
+test_path = './a_test_images'
 
 test_datagen = ImageDataGenerator(rescale=1./255)
 
@@ -15,7 +21,7 @@ test_generator = test_datagen.flow_from_directory(
     shuffle=True
 )
 
-loaded_model = tf.keras.models.load_model('flower_classifier_model_raw')
+loaded_model = tf.keras.models.load_model('flower_classifier_model_dag')
 
 
 def classify_image(image_path):
@@ -30,8 +36,18 @@ def classify_image(image_path):
     predicted_class_index = tf.argmax(prediction, axis=1).numpy()[0]
     predicted_class = class_names[predicted_class_index]
 
-    return predicted_class
+    return predicted_class, predicted_class_index, prediction
 
 
-print(
-    f"The accuracy of the model is: {loaded_model.evaluate(test_generator)[1]}")
+
+
+# print(f"The accuracy of the model is: {loaded_model.evaluate(test_generator)[1]}")
+
+
+# PREDICTING A SINGLE IMAGE
+image_path = './extra_images/tulipa_1.jpeg'
+predicted_class, predicted_class_index, prediction = classify_image(image_path)
+print(f"The predicted class is: {predicted_class} with a confidence of {prediction[0][predicted_class_index]}")
+
+
+

@@ -21,7 +21,7 @@ test_generator = test_datagen.flow_from_directory(
     shuffle=True
 )
 
-loaded_model = tf.keras.models.load_model('flower_classifier_model_dag')
+loaded_model = tf.keras.models.load_model('flower_classifier_model_dag_resnet')
 
 
 def classify_image(image_path):
@@ -39,9 +39,10 @@ def classify_image(image_path):
     return predicted_class, predicted_class_index, prediction
 
 
+# summary of the model
+print(loaded_model.summary())
 
-
-# print(f"The accuracy of the model is: {loaded_model.evaluate(test_generator)[1]}")
+print(f"The accuracy of the model is: {loaded_model.evaluate(test_generator)[1]}")
 
 
 # PREDICTING A SINGLE IMAGE

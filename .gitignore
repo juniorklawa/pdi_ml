@@ -3,6 +3,8 @@ flower_classifier_model
 flower_classifier_model_datagen
 flower_classifier_model_dag
 flower_classifier_model_raw
+flower_classifier_model_dag_resnet
+flower_classifier_model_raw_resnet
 train_images
 test_images
 a_test_images
